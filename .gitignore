@@ -1,0 +1,36 @@
+# Compiled executables
+*.exe
+*.out
+
+# Object files
+*.o
+*.obj
+
+# Static libraries
+*.a
+*.lib
+
+# Dynamic libraries
+*.dll
+*.so
+*.dylib
+
+# Debug files
+*.pdb
+*.idb
+
+# VS Code
+.vscode/
+
+# Code Runner temporary files
+tempCodeRunnerFile.cpp
+
+# CMake (if you use it later)
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Logs
+*.log
