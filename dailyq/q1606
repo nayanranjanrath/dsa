@@ -1,0 +1,104 @@
+
+/*              
+my solution it pass 106 out of 108
+
+
+class Solution {
+public:
+    vector<int> busiestServers(int k, vector<int>& arrival, vector<int>& load) {
+        int n = arrival.size();
+        vector<long long> freeTime(k, 0);
+        vector<int> task(k, 0);
+
+        for (int i = 0; i < n; i++) {
+            long long curTime = arrival[i];
+            bool assigned = false;
+
+          
+            for (int step = 0; step < k; step++) {
+                int server = (i + step) % k;
+                if (freeTime[server] <= curTime) {
+                    freeTime[server] = curTime + load[i];
+                    task[server]++;
+                    assigned = true;
+                    break;
+                }
+            }
+       
+        }
+
+        int maxTasks = *max_element(task.begin(), task.end());
+        vector<int> ans;
+        for (int i = 0; i < k; i++) {
+            if (task[i] == maxTasks) {
+                ans.push_back(i);
+            }
+        }
+        return ans;
+    }
+};*/
+
+
+
+class Solution {
+public:
+    vector<int> busiestServers(int k, vector<int>& arrival, vector<int>& load) {
+        int n = arrival.size();
+        vector<int> taskCount(k, 0);
+
+        // Set to store currently available server IDs in sorted order
+        set<int> available;
+        for (int i = 0; i < k; i++) {
+            available.insert(i);
+        }
+
+        // Min-heap to track busy servers: {finish_time, server_id}
+        // Ordered by smallest finish_time first
+        priority_queue<pair<long long, int>, 
+                       vector<pair<long long, int>>, 
+                       greater<pair<long long, int>>> busy;
+
+        for (int i = 0; i < n; i++) {
+            long long curTime = arrival[i];
+
+            // 1. Free all servers that have finished by or at curTime
+            while (!busy.empty() && busy.top().first <= curTime) {
+                available.insert(busy.top().second);
+                busy.pop();
+            }
+
+            // 2. If no servers are available, request is dropped immediately in O(1)
+            if (available.empty()) {
+                continue;
+            }
+
+            // 3. Find the first available server >= (i % k) using binary search (O(log k))
+            int target = i % k;
+            auto it = available.lower_bound(target);
+
+            // If no server >= target, wrap around to the first available server
+            if (it == available.end()) {
+                it = available.begin();
+            }
+
+            int serverId = *it;
+            available.erase(it);
+
+            // 4. Assign task and record when this server becomes free
+            busy.push({curTime + load[i], serverId});
+            taskCount[serverId]++;
+        }
+
+        // Find the maximum tasks handled
+        int maxTasks = *max_element(taskCount.begin(), taskCount.end());
+
+        vector<int> ans;
+        for (int i = 0; i < k; i++) {
+            if (taskCount[i] == maxTasks) {
+                ans.push_back(i);
+            }
+        }
+
+        return ans;
+    }
+};
